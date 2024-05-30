@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coinbase_wallet_sdk/action.dart';
+import 'package:coinbase_wallet_sdk/currency.dart';
 
 class RequestAccounts extends Action {
   const RequestAccounts()
@@ -95,24 +96,24 @@ class SignTransaction extends Action {
 class SendTransaction extends Action {
   SendTransaction({
     required String fromAddress,
-    required BigInt weiValue,
+    required String? weiValue,
     required String data,
     required String chainId,
-    String? toAddress,
+    required String toAddress,
     int? nonce,
     BigInt? gasPriceInWei,
     BigInt? maxFeePerGas,
     BigInt? maxPriorityFeePerGas,
     BigInt? gasLimit,
   }) : super(
-          method: 'eth_signTransaction',
+          method: 'eth_sendTransaction',
           paramsJson: jsonEncode({
             'fromAddress': fromAddress,
+            'toAddress': toAddress,
             'chainId': chainId,
-            'weiValue': weiValue.toString(),
+            'weiValue': weiValue,
             'data': data,
-            if (toAddress != null) 'toAddress': toAddress,
-            if (nonce != null) 'nonce': nonce,
+            'nonce': nonce ?? 0,
             if (gasPriceInWei != null)
               'gasPriceInWei': gasPriceInWei.toString(),
             if (maxFeePerGas != null) 'maxFeePerGas': maxFeePerGas.toString(),
@@ -130,6 +131,28 @@ class SwitchEthereumChain extends Action {
           method: 'wallet_switchEthereumChain',
           paramsJson: jsonEncode({
             'chainId': chainId,
+          }),
+        );
+}
+
+class AddEthereumChain extends Action {
+  AddEthereumChain({
+    required String chainId,
+    required List<String> rpcUrls,
+    String? chainName,
+    Currency? nativeCurrency,
+    List<String>? iconUrls,
+    List<String>? blockExplorerUrls,
+  }) : super(
+          method: 'wallet_addEthereumChain',
+          paramsJson: jsonEncode({
+            'chainId': chainId,
+            'rpcUrls': rpcUrls,
+            if (chainName != null) 'chainName': chainName,
+            if (nativeCurrency != null) 'nativeCurrency': nativeCurrency,
+            if (iconUrls != null) 'iconUrls': iconUrls,
+            if (blockExplorerUrls != null)
+              'blockExplorerUrls': blockExplorerUrls,
           }),
         );
 }
